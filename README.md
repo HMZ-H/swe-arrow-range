@@ -1,3 +1,5 @@
+![validate](https://github.com/HMZ-H/swe-arrow-range/actions/workflows/validate.yml/badge.svg)
+
 # swe-arrow-range
 
 A containerized bug-fix task built from a real commit in a real library, shipped
