@@ -1,0 +1,3 @@
+tests/test_api.py
+tests/test_locales.py
+tests/test_parser.py

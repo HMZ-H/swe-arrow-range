@@ -1,0 +1,33 @@
+name: validate
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build task image
+        run: docker build -t swe-arrow-range .
+
+      - name: No change scores 0
+        run: |
+          r=$(./validate.sh "nop" | awk '{print $NF}')
+          [ "$r" = "0.0" ] || { echo "nop scored $r, expected 0.0"; exit 1; }
+
+      - name: Oracle scores 1
+        run: |
+          r=$(./validate.sh "oracle" 'cd /workspace/repo && git apply /workspace/solution.patch' | awk '{print $NF}')
+          [ "$r" = "1.0" ] || { echo "oracle scored $r, expected 1.0"; exit 1; }
+
+      - name: Every cheat scores 0
+        run: |
+          fail=0
+          for c in cheats/*.sh; do
+            n=$(basename "$c" .sh)
+            r=$(./validate.sh "$n" "bash /workspace/$c" | awk '{print $NF}')
+            echo "$n -> $r"
+            [ "$r" = "0.0" ] || { echo "CHEAT PASSED: $n"; fail=1; }
+          done
+          exit $fail
